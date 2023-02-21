@@ -208,6 +208,7 @@ class StreamingDataset(IterableDataset):
         prefix_int = int(seed_rng.integers(1 << 24))
         self._prefix = f'{prefix_int:06x}'
 
+        """
         # Should be a unique shared directory per each StreamingDataset instantiation to avoid a
         # conflict between a different StreamingDataset instance on a same machine.
         start_time = time()
@@ -238,6 +239,7 @@ class StreamingDataset(IterableDataset):
                                         rank=world.rank,
                                         world_size=world.num_ranks)
             dist.barrier()
+        """
 
         # Create the shared memory-backed worker barrier, without its lock, which is unpickleable.
         worker_barrier_filelock_path = os.path.join(self._shared_dir, 'barrier_filelock')
@@ -266,9 +268,11 @@ class StreamingDataset(IterableDataset):
         self._shard_states = create_shared_memory(name=f'{self._prefix}_shard_states',
                                                   size=len(self.shard_sizes) * np.uint8(0).nbytes)
 
+        """
         # Destroy process group, and de-initialize the distributed package
         if is_dist_pg_initialized:
             dist.destroy_process_group()
+        """
 
     @property
     def next_epoch(self) -> int:
